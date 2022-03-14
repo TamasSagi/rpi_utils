@@ -34,7 +34,9 @@ class DelugeHandler:
         self.client = LocalDelugeRPCClient()
         self.client.connect()
 
-    def get_torrent_list(self, stats_to_query: List['str'] = TORRENT_STATS_TO_QUERY) -> Dict[str, TorrentStats]:
+    def get_torrent_list(self, stats_to_query: List['str'] = None) -> Dict[str, TorrentStats]:
+        stats_to_query = stats_to_query if stats_to_query else DelugeHandler.TORRENT_STATS_TO_QUERY
+
         return self.client.call('core.get_torrents_status', {}, stats_to_query)
 
     def get_stats(self) -> TorrentInfo:
@@ -59,7 +61,8 @@ class DelugeHandler:
         torrents = self.get_torrent_list()
 
         for torrent_hash, torrent_values in dict(torrents).items():
-            if torrent_values['seeding_time'] > DelugeHandler.REQUIRED_SEED_TIME or torrent_values['ratio'] >= DelugeHandler.REQUIRED_RATIO:
+            if (torrent_values['seeding_time'] > DelugeHandler.REQUIRED_SEED_TIME or
+                torrent_values['ratio'] >= DelugeHandler.REQUIRED_RATIO):
                 self.client.call('core.remove_torrent', torrent_hash, False)
                 torrents.pop(torrent_hash)
 
@@ -70,4 +73,4 @@ class DelugeHandler:
 
     def _dump_torrents_to_json(self) -> None:
         torrents = self.get_torrent_list()
-        json.dump(torrents, Path('torrent_list.json').open('w'), indent=4)
+        json.dump(torrents, Path('torrent_list.json').open('w', encoding='utf8'), indent=4)
