@@ -27,7 +27,7 @@ class DisplayHandler:
             self.display_cntr += 1
 
         with canvas(self.device) as display:
-            self.clear_display()
+            self.clear_display(display)
 
             if self.display_cntr % 2 == 1:
                 self.draw_general_stats(display)
