@@ -30,16 +30,17 @@ class DisplayHandler:
             self.clear_display(display)
 
             if self.display_cntr % 2 == 1:
-                self.draw_general_stats(display)
+                DisplayHandler.draw_general_stats(display)
             else:
-                self.draw_deluge_stats(display)
+                DisplayHandler.draw_deluge_stats(display, self.deluge_handler)
 
         self.frame_cntr += 1
 
     def clear_display(self, display: ImageDraw) -> None:
         display.rectangle(self.device.bounding_box, fill="black")
 
-    def draw_general_stats(self, display: ImageDraw) -> None:
+    @staticmethod
+    def draw_general_stats(display: ImageDraw) -> None:
         stats = [
             '       GENERAL:',
             '',
@@ -50,10 +51,11 @@ class DisplayHandler:
             DisplayHandler.get_uptime_message(),
         ]
 
-        self.position_stats_on_display(stats, display)
+        DisplayHandler.position_stats_on_display(stats, display)
 
-    def draw_deluge_stats(self, display: ImageDraw) -> None:
-        deluge_stats = self.deluge_handler.get_stats()
+    @staticmethod
+    def draw_deluge_stats(display: ImageDraw, deluge_handler: DelugeHandler) -> None:
+        deluge_stats = deluge_handler.get_stats()
 
         stats = [
             '       DELUGE:',
@@ -62,9 +64,10 @@ class DisplayHandler:
             f'Down({deluge_stats["downloading"]}): {deluge_stats["download_speed_bps"]/1024.0:.2f}kBps'
         ]
 
-        self.position_stats_on_display(stats, display)
+        DisplayHandler.position_stats_on_display(stats, display)
 
-    def position_stats_on_display(self, stats: List[str], display: ImageDraw) -> None:
+    @staticmethod
+    def position_stats_on_display(stats: List[str], display: ImageDraw) -> None:
         for idx, stat in enumerate(stats):
             display.text((0, 8 * idx), f"{stat}", fill="white")
 
